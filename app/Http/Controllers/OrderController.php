@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ShopifyImportJob;
 use App\Models\Order;
-use App\Services\ImportService;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Order::where('total_price', '>', 100);
+        $query = Order::with('customer')->where('total_price', '>', 100);
 
         $financial_statuses = $query->pluck('financial_status')->filter()->unique()->values();
 
@@ -36,7 +36,7 @@ class OrderController extends Controller
 
     public function import()
     {
-        ImportService::import();
+        ShopifyImportJob::dispatch();
         return redirect()->route('orders.index');
     }
 }
